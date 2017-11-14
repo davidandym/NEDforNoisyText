@@ -109,5 +109,3 @@ data/
 *.w2v.def
 *.weights
 *.model
-WikilinkIterator2JSON/
-wiki2JSON-master/
