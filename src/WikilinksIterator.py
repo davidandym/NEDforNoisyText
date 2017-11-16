@@ -106,9 +106,23 @@ class WikilinksNewIterator:
         t = 0
         for c, f in enumerate(self._wikilink_files()):
             lines = f.readlines()
+            jsonObj = []
             for line in lines:
                 if len(line) > 0:
-                    wlink = json.loads(line)
+                    line = line.strip('\n')
+                    if line == '{"wlinks":[' or line == ']}':
+                        continue
+                    elif line == '{':
+                        jsonObj.append(line)
+                        continue
+                    elif line == '},{' or line == '}':
+                        jsonObj.append('}')
+                        wlink = json.loads(''.join(jsonObj))
+                        jsonObj = []
+                        jsonObj.append('{')
+                    else:
+                        jsonObj.append(line)    
+                        continue
 
                     # filter
                     if not 'word' in wlink:
