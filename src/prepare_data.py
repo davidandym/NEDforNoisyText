@@ -195,7 +195,7 @@ if __name__ == "__main__":
     print 'resolving ids...'
     os.makedirs(wikilinks_with_id_folder)
     wikiDB = WikipediaDbWrapper(user=db_user, password=db_pass, database=db_schema, host=db_host)
-    it = WikilinksNewIterator(path=wikilinks_unprocessed_folder, resolveIds=True, db=wikiDB)
+    it = WikilinksNewerIterator(path=wikilinks_unprocessed_folder, resolveIds=True, db=wikiDB)
     writer = wlink_writer(wikilinks_with_id_folder)
     hashes = set()
     for i, wlink in enumerate(it.jsons()):
