@@ -107,8 +107,39 @@ class WikilinksNewerIterator:
         t = 0
         for c, f in enumerate(self._wikilink_files()):
             print f
-            high_json = json.load(f)
-            wlink_arr = high_json["wlinks"]
+            try:
+                high_json = json.load(f)
+                wlink_arr = high_json["wlinks"]
+            except ValueError:
+                print 'error parsing json, manually attempting'
+                f.seek(0)
+                lines = f.readlines()
+                jsonObj = []
+                wlink_arr = []
+                for line in lines:
+                    if len(line) > 0:
+                        line = line.strip('\n')
+                        if line == '{"wlinks":[' or line == ']}':
+                            continue
+                        elif line == '{':
+                            jsonObj.append(line)
+                            continue
+                        elif line == '},{' or line == '}':
+                            jsonObj.append('}')
+                            try:
+                                wlink = json.loads(''.join(jsonObj))
+                                wlink_arr.append(wlink)
+                            except ValueError:
+                                print 'read bad json: '
+                                print jsonObj
+                                print 'skipping'
+                            jsonObj = []
+                            jsonObj.append('{')
+                        else:
+                            jsonObj.append(line)    
+                            continue
+            f.close()
+
             for wlink in wlink_arr:
                 if not 'word' in wlink:
                     continue
@@ -163,8 +194,6 @@ class WikilinksNewerIterator:
                 # return
                 yield wlink
 
-            f.close()
-            break
             if self._limit_files > 0 and c >= self._limit_files:
                 break
 
@@ -214,23 +243,10 @@ class WikilinksNewIterator:
         t = 0
         for c, f in enumerate(self._wikilink_files()):
             lines = f.readlines()
-            jsonObj = []
             for line in lines:
                 if len(line) > 0:
-                    line = line.strip('\n')
-                    if line == '{"wlinks":[' or line == ']}':
-                        continue
-                    elif line == '{':
-                        jsonObj.append(line)
-                        continue
-                    elif line == '},{' or line == '}':
-                        jsonObj.append('}')
-                        wlink = json.loads(''.join(jsonObj))
-                        jsonObj = []
-                        jsonObj.append('{')
-                    else:
-                        jsonObj.append(line)    
-                        continue
+                    wlink = json.loads(line)
+
 
                     # filter
                     if not 'word' in wlink:

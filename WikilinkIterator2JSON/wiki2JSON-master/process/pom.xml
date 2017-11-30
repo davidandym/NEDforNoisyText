@@ -25,7 +25,7 @@
     <repository>
       <id>scala-tools.org</id>
       <name>Scala-Tools Maven2 Repository</name>
-      <url>https://mvnrepository.com/artifact/org.scala-tools</url>
+      <url>http://scala-tools.org/repo-releases</url>
     </repository>
     <repository>
       <id>third.iesl.cs.umass.edu</id>
@@ -113,13 +113,20 @@
       <layout>default</layout>
     </repository>
 
- </repositories>
+    <repository> <id>iesl.cs.umass.edu</id>
+      <name>IESL release repository</name>
+      <url>https://dev-iesl.cs.umass.edu/nexus/content/repositories/releases/</url>
+    </repository> <repository> <id>snapshot.iesl.cs.umass.edu</id>
+    <name>IESL snapshot repository</name>
+    <url>https://dev-iesl.cs.umass.edu/nexus/content/repositories/snapshots/</url>
+  </repository>
+  </repositories>
 
   <pluginRepositories>
     <pluginRepository>
       <id>scala-tools.org</id>
       <name>Scala-Tools Maven2 Repository</name>
-      <url>https://mvnrepository.com/artifact/org.scala-tools</url>
+      <url>http://scala-tools.org/repo-releases</url>
     </pluginRepository>
   </pluginRepositories>
 
@@ -130,9 +137,19 @@
       <version>0.1-SNAPSHOT</version>
     </dependency>
     <dependency>
-      <groupId>io.spray</groupId>
-      <artifactId>spray-json_2.12</artifactId>
-      <version>1.3.4</version>
+      <groupId>org.sameersingh.utils</groupId>
+      <artifactId>cmdopts</artifactId>
+      <version>0.1.1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sameersingh.utils</groupId>
+      <artifactId>timing</artifactId>
+      <version>0.1.1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sameersingh.utils</groupId>
+      <artifactId>coref</artifactId>
+      <version>0.1.1-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.scala-lang</groupId>
@@ -266,6 +283,7 @@
             </goals>
             <configuration>
               <args>
+                <arg>-make:transitive</arg>
                 <arg>-dependencyfile</arg>
                 <arg>${project.build.directory}/.scala_dependencies</arg>
               </args>

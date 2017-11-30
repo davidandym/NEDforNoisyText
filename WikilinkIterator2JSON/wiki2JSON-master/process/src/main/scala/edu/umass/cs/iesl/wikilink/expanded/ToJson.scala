@@ -8,8 +8,8 @@ import edu.umass.cs.iesl.wikilink.expanded.data.WikiLinkItem
 class ToJson {
   def main(args: Array[String]) {
     val path: Array[String] = new Array[String](1)
-    path(1) = "/Users/davidmueller/Code/nlp_final/NEDforNoisyText/data/wikilinks/unzipped"
-    val it = WikiLinkItemIterator("/Users/davidmueller/Code/nlp_final/NEDforNoisyText/data/wikilinks/unzipped")
+    path(1) = "C:\\Users\\Noam\\OneDrive for Business\\NLP for DL 2016\\Project\\data\\wikilinks_data"
+    val it = WikiLinkItemIterator("C:\\Users\\Noam\\OneDrive for Business\\NLP for DL 2016\\Project\\data\\wikilinks_data")
     println("success!")
     return
   }
