@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Editor
+.vscode/
+
 # C extensions
 *.so
 
@@ -11,6 +14,10 @@ __pycache__/
 pip-selfcheck.json
 bin/
 include/
+<<<<<<< HEAD
+local/
+=======
+>>>>>>> origin/master
 env/
 build/
 develop-eggs/

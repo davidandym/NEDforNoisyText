@@ -2,6 +2,7 @@ import mysql.connector
 import re
 import urllib
 import utils.text
+import sys
 class WikipediaDbWrapper:
     """
     Some initial efforts at supporting Db for the project
@@ -18,7 +19,7 @@ class WikipediaDbWrapper:
         self._host = host
 
         self._cnx = mysql.connector.connect(user=user, password=password, host=host, database=database,
-                                            connection_timeout=1)
+                                            connection_timeout=3600)
         self._cursor = self._cnx.cursor(buffered=True)
         self._articleInlinks = None
 
@@ -27,7 +28,7 @@ class WikipediaDbWrapper:
         self._cache_resolve = dict()
         self._cache_title = dict()
 
-    def getConnection(self, timeout=1):
+    def getConnection(self, timeout=3600):
         return mysql.connector.connect(user=self._user, password=self._password, host=self._host,
                                             database=self._database, connection_timeout=timeout)
 
@@ -41,7 +42,7 @@ class WikipediaDbWrapper:
         except:
             print "some error"
         self._cnx = mysql.connector.connect(user=self._user, password=self._password, host=self._host,
-                                            database=self._database, connection_timeout=1)
+                                            database=self._database, connection_timeout=3600)
         self._cursor = self._cnx.cursor(buffered=True)
 
     def updatePageTableTitleForLookupColumn(self):
@@ -134,6 +135,7 @@ class WikipediaDbWrapper:
                 return ret
 
             except:
+                e = sys.exc_info()[0]
                 print "reseting connection..."
                 self.resetConnection()
         if verbose or print_errors:

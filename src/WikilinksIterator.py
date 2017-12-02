@@ -77,6 +77,145 @@ class WikilinksOldIterator:
                 print "stoppped at file ", self.limit_files
                 break
 
+class WikilinksNewerIterator:
+
+    # the new iterator does not support using a zip file.
+    def __init__(self, path, limit_files = 0, mention_filter=None, resolveIds=False, db=None):
+        self._path = path
+        self._limit_files = limit_files
+        self._mention_filter = mention_filter
+        self._stopwords = stopwords.words('english')
+        self._resolveIds = resolveIds
+        self._db = db
+
+    def get_wlink(self):
+        # outputs the next wlink piece
+        # print "get next()"
+        for wlink in self.wikilinks():
+            yield wlink
+
+    def _wikilink_files(self):
+        for i, f in enumerate(os.listdir(self._path)):
+            print f
+            if os.path.isdir(os.path.join(self._path, f)):
+                continue
+            print time.strftime("%H:%M:%S"), "- opening", f, "(", i, "opened so far in this epoch)"
+            yield open(os.path.join(self._path, f), 'r')
+
+    def jsons(self):
+        r = 0
+        t = 0
+        #for i in xrange(0,1):
+        #    f = open(os.path.join(self._path, 'wikilink_51.json'), 'r')
+        for c, f in enumerate(self._wikilink_files()):
+            print f
+            try:
+                high_json = json.load(f)
+                wlink_arr = high_json["wlinks"]
+            except ValueError:
+                print 'error parsing json, manually attempting'
+                f.seek(0)
+                lines = f.readlines()
+                jsonObj = []
+                wlink_arr = []
+                for line in lines:
+                    if len(line) > 0:
+                        line = line.strip('\n')
+                        if line == '{"wlinks":[' or line == ']}':
+                            continue
+                        elif line == '{':
+                            jsonObj.append(line)
+                            continue
+                        elif line == '},{' or line == '}':
+                            jsonObj.append('}')
+                            try:
+                                wlink = json.loads(''.join(jsonObj))
+                                wlink_arr.append(wlink)
+                            except ValueError:
+                                print 'read bad json: '
+                                print jsonObj
+                                print 'skipping'
+                            jsonObj = []
+                            jsonObj.append('{')
+                        else:
+                            jsonObj.append(line)    
+                            continue
+            f.close()
+
+            for wlink in wlink_arr:
+                if not 'word' in wlink:
+                    continue
+                if 'right_context' not in wlink and 'left_context' not in wlink:
+                    continue
+                if self._mention_filter is not None and wlink['word'] not in self._mention_filter:
+                    continue
+
+                if not self._resolveIds:
+                    wlink['wikiId'] = int(wlink['wikiId']) if 'wikiId' in wlink else None
+                else:
+                    t += 1
+                    url = wlink['wikiurl']
+                    if url.rfind('/') > -1:
+                        url = url[url.rfind('/')+1:]
+                    if url.find('#') > -1:
+                        url = url[:url.find('#')]
+                    url = urllib.unquote(url)
+                    url = url.replace(' ', '_')
+
+                    url = unicodedata.normalize('NFKD', url).encode('ascii', 'ignore')
+                    if len(url) > 0 and url[0].islower():
+                        tttt = list(url)
+                        tttt[0] = tttt[0].upper()
+                        url = ''.join(tttt)
+                    wikiId = self._db.resolvePage(url)
+                    if t % 50000 == 0:
+                        print "% able to resolve:", 100 * float(r) / t, "% out of", t
+                    if wikiId is None:
+                        continue
+                    else:
+                        wlink['wikiId'] = wikiId
+                        r += 1
+
+                if 'mention_as_list' not in wlink:
+                    mention_as_list = unicodedata.normalize('NFKD', wlink['word']).encode('ascii','ignore').lower()
+                    mention_as_list = nltk.word_tokenize(mention_as_list)
+                    wlink['mention_as_list'] = mention_as_list
+
+                # preprocess context (if not already processed
+                if 'right_context' in wlink and not isinstance(wlink['right_context'], list):
+                    wlink['right_context_text'] = wlink['right_context']
+                    r_context = unicodedata.normalize('NFKD', wlink['right_context']).encode('ascii','ignore').lower()
+                    wlink['right_context'] = nltk.word_tokenize(r_context)
+                    wlink['right_context'] = [w for w in wlink['right_context']]
+                if 'left_context' in wlink and not isinstance(wlink['left_context'], list):
+                    wlink['left_context_text'] = wlink['left_context']
+                    l_context = unicodedata.normalize('NFKD', wlink['left_context']).encode('ascii','ignore').lower()
+                    wlink['left_context'] = nltk.word_tokenize(l_context)
+                    wlink['left_context'] = [w for w in wlink['left_context']]
+
+                # return
+                yield wlink
+
+            if self._limit_files > 0 and c >= self._limit_files:
+                break
+
+    def mentions(self):
+        for doc in self.documents():
+            for mention in doc.mentions:
+                yield mention
+
+    def documents(self):
+        for i, json in enumerate(self.jsons()):
+            doc = Document(str(i), i)
+            m = MentionFromDict(json, doc)
+            doc.mentions.append(m)
+            dd = [x for x in m.left_context_iter()]
+            doc.tokens = dd[::-1] + \
+                         [x for x in m.mention_text_tokenized()] + \
+                         [x for x in m.right_context_iter()]
+            doc.sentences = [' '.join(doc.tokens)]
+            yield doc
+
 class WikilinksNewIterator:
 
     # the new iterator does not support using a zip file.
@@ -123,6 +262,7 @@ class WikilinksNewIterator:
                     else:
                         jsonObj.append(line)    
                         continue
+
 
                     # filter
                     if not 'word' in wlink:

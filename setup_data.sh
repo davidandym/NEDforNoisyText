@@ -14,12 +14,6 @@ wget -O wikiextractor.zip "https://github.com/attardi/wikiextractor/zipball/mast
 unzip wikiextractor.zip
 cd ..
 
-mkdir WikilinkIterator2JSON
-cd WikilinkIterator2JSON
-wget -O WikilinkIterator2JSON.zip "https://github.com/NoamGit/wiki2JSON/archive/master.zip"
-unzip WikilinkIterator2JSON.zip
-cd ..
-
 #------ extract all documents from wiki dump
 
 if [ ! -f "data/enwiki/extracted" ] ; then 
