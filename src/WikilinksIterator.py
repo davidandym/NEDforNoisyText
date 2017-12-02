@@ -105,6 +105,8 @@ class WikilinksNewerIterator:
     def jsons(self):
         r = 0
         t = 0
+        #for i in xrange(0,1):
+        #    f = open(os.path.join(self._path, 'wikilink_51.json'), 'r')
         for c, f in enumerate(self._wikilink_files()):
             print f
             try:
