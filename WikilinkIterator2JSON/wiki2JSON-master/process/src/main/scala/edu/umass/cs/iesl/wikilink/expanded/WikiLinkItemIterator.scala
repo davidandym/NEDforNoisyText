@@ -69,7 +69,7 @@ object WikiLinkItemIterator {
 
   def main(args: Array[String]) = {
 //    the path of th original Wikilink thrift files
-    val src_path : String = "C:\\Users\\Noam\\Documents\\wikilink_data\\wiki_thrift_format"
+    val src_path : String = "/Users/davidmueller/Code/nlp_final/NEDforNoisyText/data/wikilinks/source/"
 
     val it = WikiLinkItemIterator(src_path)
 //    val it = WikiLinkItemIterator(args(0))

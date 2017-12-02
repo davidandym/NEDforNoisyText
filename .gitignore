@@ -14,7 +14,10 @@ __pycache__/
 pip-selfcheck.json
 bin/
 include/
+<<<<<<< HEAD
 local/
+=======
+>>>>>>> origin/master
 env/
 build/
 develop-eggs/
