@@ -150,7 +150,7 @@ class ModelBuilder:
         #attention = layers.concatenate([controller_repeated, seq], axis=-1)
 
         #layers.Dense(1, activation='sigmoid')
-        attention = layers.TimeDistributedDense(1, activation='sigmoid')(attention)
+        attention = layers.TimeDistributed(layers.Dense(1, activation='sigmoid'))(attention)
         attention = layers.Flatten()(attention)
         attention = layers.Lambda(to_prob, output_shape=(self._config['context_window_size'],))(attention)
 
@@ -164,7 +164,7 @@ class ModelBuilder:
 
     def buildAttention(self, seq, controller):
         controller_repeated = layers.RepeatVector(self._config['context_window_size'])(controller)
-        controller_repeated = layers.TimeDistributedDense(self._w2v.conceptEmbeddingsSz)(controller_repeated)
+        controller_repeated = layers.TimeDistributed(layers.Dense(self._w2v.conceptEmbeddingsSz))(controller_repeated)
 
         attention = layers.Lambda(my_dot, output_shape=(self._config['context_window_size'],))([controller_repeated, seq])
 

@@ -61,7 +61,11 @@ class Word2vecLoader:
         if filterSet is not None:
             print "filterSet", len(filterSet)
         with open(path) as f:
-            dict_sz, embd_sz = f.readline().split()
+            if path == self._wordsFilePath:
+                dict_sz = 414856
+            else:
+                dict_sz = 104641
+            embd_sz = 300
             print 'embeddings has', dict_sz, 'embeddings'
             dict_sz = int(dict_sz) if filterSet is None or int(dict_sz) < len(filterSet) else len(filterSet)
             embd_sz = int(embd_sz)
@@ -72,7 +76,7 @@ class Word2vecLoader:
             # Adds a dummy key. The dummy is a (0,...,0) vector
             embd_dict[DUMMY_KEY] = 1
 
-            i = 2
+            i = 1 
             for line in iter(f):
                 s = line.split()
                 if s[0] == '</s>':

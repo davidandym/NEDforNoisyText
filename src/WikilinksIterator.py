@@ -248,21 +248,7 @@ class WikilinksNewIterator:
             jsonObj = []
             for line in lines:
                 if len(line) > 0:
-                    line = line.strip('\n')
-                    if line == '{"wlinks":[' or line == ']}':
-                        continue
-                    elif line == '{':
-                        jsonObj.append(line)
-                        continue
-                    elif line == '},{' or line == '}':
-                        jsonObj.append('}')
-                        wlink = json.loads(''.join(jsonObj))
-                        jsonObj = []
-                        jsonObj.append('{')
-                    else:
-                        jsonObj.append(line)    
-                        continue
-
+                    wlink = json.loads(line) 
 
                     # filter
                     if not 'word' in wlink:
@@ -323,11 +309,13 @@ class WikilinksNewIterator:
                 break
 
     def mentions(self):
+        print 'hi'
         for doc in self.documents():
             for mention in doc.mentions:
                 yield mention
 
     def documents(self):
+        print 'h1^2'
         for i, json in enumerate(self.jsons()):
             doc = Document(str(i), i)
             m = MentionFromDict(json, doc)
